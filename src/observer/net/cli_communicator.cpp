@@ -68,9 +68,7 @@ char *my_readline(const char *prompt)
     strcpy(line, "exit");
     printf("\n");
     return line;
-  }
-
-  char *line = readline(prompt);
+  }  char *line = readline(prompt);
   if (line != nullptr && line[0] != 0) {
     add_history(line);
     if (time(NULL) - last_history_write_time > 5) {
