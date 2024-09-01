@@ -14,7 +14,7 @@ See the Mulan PSL v2 for more details. */
 
 #include <limits.h>
 #include <string.h>
-
+#include <cstdio>
 #include "common/defs.h"
 #include "common/lang/string.h"
 #include "common/lang/span.h"
@@ -51,7 +51,6 @@ Table::~Table()
 
   LOG_INFO("Table has been closed: %s", name());
 }
-
 RC Table::create(Db *db, int32_t table_id, const char *path, const char *name, const char *base_dir,
     span<const AttrInfoSqlNode> attributes, StorageFormat storage_format)
 {
@@ -124,6 +123,40 @@ RC Table::create(Db *db, int32_t table_id, const char *path, const char *name, c
   }
 
   LOG_INFO("Successfully create table %s:%s", base_dir, name);
+  return rc;
+}
+
+RC Table::drop(Db *db, int32_t table_id, const char *path, const char *name, const char *base_dir)
+{
+  RC rc = RC::SUCCESS;
+  if (table_id < 0) {
+    LOG_WARN("invalid table id. table_id=%d, table_name=%s", table_id, name);
+    return RC::INVALID_ARGUMENT;
+  }
+  if (common::is_blank(name)) {
+    LOG_WARN("Name cannot be empty");
+    return RC::INVALID_ARGUMENT;
+  }
+  LOG_INFO("Begin to drop table %s:%s", base_dir, name);
+  rc = close();
+  // 删除文件
+ 
+  db_       = db;
+  base_dir_ = base_dir;
+
+  string             data_file = table_data_file(base_dir, name);
+  BufferPoolManager &bpm       = db->buffer_pool_manager();
+  // 在BufferPool中删除相关文件
+  rc                           = bpm.remove_file(data_file.c_str());
+  if (rc != RC::SUCCESS) {
+    LOG_ERROR("Failed to create disk buffer pool of data file. file name=%s", data_file.c_str());
+    return rc;
+  }
+  if (rc != RC::SUCCESS) {
+    LOG_ERROR("Failed to create table %s due to init record handler failed.", data_file.c_str());
+    // don't need to remove the data_file
+    return rc;
+  }
   return rc;
 }
 

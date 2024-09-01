@@ -28,7 +28,7 @@ table->recordFileRecord->record_page_handler->insert_record
 set_rid可设置rid，但暂且还不知道在哪设置的
 
 实现思路：
-1.先分配内存
+1.先分配内存,分配内存参照mem_pool.h
 2.在内存中划分page
 3.在page中存放record
 4.Table以record层面操作

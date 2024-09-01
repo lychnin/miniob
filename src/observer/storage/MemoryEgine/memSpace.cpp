@@ -1,6 +1,6 @@
-#include "/root/miniob/src/observer/common/rc.h"
-#include "/root/miniob/src/observer/common/mm/mem_pool.h"
-#include "/root/miniob/src/observer/storage/MemoryEgine/memPage.h"
+#include "common/rc.h"
+#include "common/mm/mem_pool.h"
+#include "storage/MemoryEgine/memPage.h"
 class MemSpace{
 public:
      MemSpace();
@@ -76,5 +76,4 @@ RC MemSpace::free_internal(const FrameId &frame_id, Frame *frame)
 int main(){
      MemSpace mem;
      mem.init(1);
-
 }

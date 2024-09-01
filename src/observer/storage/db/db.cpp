@@ -139,7 +139,7 @@ RC Db::init(const char *name, const char *dbpath, const char *trx_kit_name, cons
 RC Db::create_table(const char *table_name, span<const AttrInfoSqlNode> attributes, const StorageFormat storage_format)
 {
   RC rc = RC::SUCCESS;
-  // check table_name
+  // check table_name是否存在这样一个表
   if (opened_tables_.count(table_name) != 0) {
     LOG_WARN("%s has been opened before.", table_name);
     return RC::SCHEMA_TABLE_EXIST;
@@ -149,18 +149,44 @@ RC Db::create_table(const char *table_name, span<const AttrInfoSqlNode> attribut
   string  table_file_path = table_meta_file(path_.c_str(), table_name);
   Table  *table           = new Table();
   int32_t table_id        = next_table_id_++;
+  // 没有创建过这个表的话会利用table的接口创建表
   rc = table->create(this, table_id, table_file_path.c_str(), table_name, path_.c_str(), attributes, storage_format);
   if (rc != RC::SUCCESS) {
     LOG_ERROR("Failed to create table %s.", table_name);
     delete table;
     return rc;
   }
-
+  // 将这个表加入到已经打开的表的列表之中
   opened_tables_[table_name] = table;
   LOG_INFO("Create table success. table name=%s, table_id:%d", table_name, table_id);
   return RC::SUCCESS;
 }
 
+RC Db::drop_table(const char *table_name)
+{
+  RC rc = RC::SUCCESS;
+  // check table_name是否存在这样一个表
+  if (opened_tables_.count(table_name) == 0) {
+    LOG_WARN("%s has not exist.", table_name);
+    return RC::SCHEMA_TABLE_EXIST;
+  }
+
+  // 文件路径可以移到Table模块
+  string  table_file_path = table_meta_file(path_.c_str(), table_name);
+  Table  *table           = new Table();
+  int32_t table_id        = next_table_id_++;
+  // 这个表存在的话会利用table的接口删除表
+  rc = table->drop(this, table_id, table_file_path.c_str(), table_name, path_.c_str());
+  if (rc != RC::SUCCESS) {
+    LOG_ERROR("Failed to drop table %s.", table_name);
+    delete table;
+    return rc;
+  }
+  // 将这个表删除已经打开的表的列表之中
+  opened_tables_.erase(table_name);
+  LOG_INFO("Drop table success. table name=%s, table_id:%d", table_name, table_id);
+  return RC::SUCCESS;
+}
 Table *Db::find_table(const char *table_name) const
 {
   unordered_map<string, Table *>::const_iterator iter = opened_tables_.find(table_name);
@@ -182,6 +208,7 @@ Table *Db::find_table(int32_t table_id) const
 
 RC Db::open_all_tables()
 {
+  //这里放的是路径
   vector<string> table_meta_files;
 
   int ret = list_file(path_.c_str(), TABLE_META_FILE_PATTERN, table_meta_files);

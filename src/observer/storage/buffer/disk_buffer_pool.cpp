@@ -309,6 +309,7 @@ RC DiskBufferPool::close_file()
   return RC::SUCCESS;
 }
 
+RC remove_file(const char *file_name);
 RC DiskBufferPool::get_this_page(PageNum page_num, Frame **frame)
 {
   RC rc  = RC::SUCCESS;
