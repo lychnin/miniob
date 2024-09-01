@@ -153,6 +153,7 @@ struct AttrInfoSqlNode
  * @ingroup SQLParser
  * @details 这里也做了很多简化。
  */
+// create table之后的内容：表名，屬性列表和格式
 struct CreateTableSqlNode
 {
   std::string                  relation_name;   ///< Relation name

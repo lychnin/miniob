@@ -41,7 +41,9 @@ public:
   virtual ~Index() = default;
 
   const IndexMeta &index_meta() const { return index_meta_; }
-
+  
+  //增加删除索引
+  virtual RC drop()=0;
   /**
    * @brief 插入一条数据
    *

@@ -29,6 +29,8 @@ public:
 
   RC create(Table *table, const char *file_name, const IndexMeta &index_meta, const FieldMeta &field_meta);
   RC open(Table *table, const char *file_name, const IndexMeta &index_meta, const FieldMeta &field_meta);
+  // 添加了一个drop接口
+  RC drop() override;
   RC close();
 
   RC insert_entry(const char *record, const RID *rid) override;

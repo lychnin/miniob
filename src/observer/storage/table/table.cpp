@@ -138,12 +138,13 @@ RC Table::drop(Db *db, int32_t table_id, const char *path, const char *name, con
     return RC::INVALID_ARGUMENT;
   }
   LOG_INFO("Begin to drop table %s:%s", base_dir, name);
-  rc = close();
   // 删除文件
- 
+  for(Index *index:indexes_){
+    index->drop();
+  }
   db_       = db;
   base_dir_ = base_dir;
-
+  // recorder_handler不必再进行显式释放了，因为Table的析构函数对其进行了释放
   string             data_file = table_data_file(base_dir, name);
   BufferPoolManager &bpm       = db->buffer_pool_manager();
   // 在BufferPool中删除相关文件
@@ -157,6 +158,7 @@ RC Table::drop(Db *db, int32_t table_id, const char *path, const char *name, con
     // don't need to remove the data_file
     return rc;
   }
+  ::remove(path);
   return rc;
 }
 

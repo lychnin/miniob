@@ -975,6 +975,18 @@ RC BplusTreeHandler::close()
   return RC::SUCCESS;
 }
 
+RC BplusTreeHandler::drop(){
+  RC rc=RC::SUCCESS;
+  if(disk_buffer_pool_!=nullptr){
+//    BufferPoolManager &bpm       = BufferPoolManager::instance();
+    BufferPoolManager A;
+    BufferPoolManager &bpm=A;
+    rc =bpm.remove_file(disk_buffer_pool_->filename());
+  }
+  disk_buffer_pool_=nullptr;
+  return rc;
+
+}
 RC BplusTreeHandler::print_leaf(Frame *frame)
 {
   BplusTreeMiniTransaction mtr(*this);

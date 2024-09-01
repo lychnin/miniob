@@ -29,6 +29,5 @@ RC DropTableExecutor::execute(SQLStageEvent *sql_event)
   const char *table_name = drop_table_stmt->table_name().c_str();
   //找到当前的数据库->调用接口删表
   RC rc = session->get_current_db()->drop_table(table_name);
-
   return rc;
 }

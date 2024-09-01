@@ -479,7 +479,7 @@ public:
    */
   RC open(LogHandler &log_handler, BufferPoolManager &bpm, const char *file_name);
   RC open(LogHandler &log_handler, DiskBufferPool &buffer_pool);
-
+  RC drop();
   /**
    * 关闭句柄indexHandle对应的索引文件
    */
